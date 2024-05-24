@@ -1,6 +1,9 @@
 package ru.nms.balltree;
 
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.MinMaxPriorityQueue;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.math3.linear.ArrayRealVector;
@@ -15,9 +18,7 @@ import static java.util.function.Function.identity;
 
 @RequiredArgsConstructor
 public class BallTree {
-
-    private final Map<RealVector, RealVector> projectionsMap = new HashMap<>();
-//    private final MinMaxPriorityQueue<RealVector> knnQueue;
+    //    private final MinMaxPriorityQueue<RealVector> knnQueue;
     Comparator<RealVector> projectionComparator = Comparator.comparingDouble(v -> Arrays.stream(v.toArray()).sum());
     @Getter
     private final Node root;
@@ -28,18 +29,24 @@ public class BallTree {
         if (currentNode.getVectors().size() <= leafSize) {
             return;
         }
-        projectionsMap.clear();
 
-
-        var twoFarthestPoints = BallTreeUtils.findTwoFarthestPoints(currentNode.getVectors(), currentNode.getCentroid());
-        var baseLine = twoFarthestPoints.getFirst().subtract(twoFarthestPoints.get(1));
-        projectionsMap.putAll(currentNode.getVectors().stream().collect(Collectors.toMap( x -> x.projection(baseLine), identity())));
+//        var twoFarthestPoints = BallTreeUtils.findTwoFarthestPoints(currentNode.getVectors(), currentNode.getCentroid());
+        var farthestPoint = BallTreeUtils.findFarthestVector(currentNode.getVectors(), currentNode.getCentroid());
+        var secondFarthestPoint = BallTreeUtils.findSecondFarthestVector(currentNode.getVectors(), currentNode.getCentroid(), farthestPoint);
+        if (Arrays.equals(farthestPoint.toArray(), secondFarthestPoint.toArray())) return;
+        var baseLine = farthestPoint.subtract(secondFarthestPoint);
+        var projectionsMap = Multimaps.index(currentNode.getVectors(), k -> k.projection(baseLine));
+//        projectionsMap.putAll(currentNode.getVectors().stream().collect(Multimaps.flatteningToMultimap(
+//                identity(),  // Key function
+//                identity(),  // Value function
+//                HashMultimap::create  // Multimap supplier
+//        )));
 
         var sortedProjections = projectionsMap.keySet().stream().sorted(projectionComparator).toList();
         var middleIndex = sortedProjections.size() / 2;
 
-        List<RealVector> leftSubset = sortedProjections.subList(0, middleIndex).stream().map(projectionsMap::get).toList();
-        List<RealVector> rightSubset = sortedProjections.subList(middleIndex, sortedProjections.size()).stream().map(projectionsMap::get).toList();
+        List<RealVector> leftSubset = sortedProjections.subList(0, middleIndex).stream().map(projectionsMap::get).flatMap(List::stream).toList();
+        List<RealVector> rightSubset = sortedProjections.subList(middleIndex, sortedProjections.size()).stream().map(projectionsMap::get).flatMap(List::stream).toList();
 
         currentNode.setLeftChild(new Node(leftSubset));
         currentNode.setRightChild(new Node(rightSubset));

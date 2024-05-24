@@ -3,6 +3,7 @@ package ru.nms.balltree.utils;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealVector;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class BallTreeUtils {
@@ -29,27 +30,35 @@ public class BallTreeUtils {
         return maxDistance;
     }
 
-    public static List<RealVector> findTwoFarthestPoints(List<RealVector> vectors, RealVector centroid) {
-        if(vectors.size() < 3) {
-            return vectors;
-        }
+
+    public static RealVector findFarthestVector(List<RealVector> vectors, RealVector centroid) {
+
         double maxDistance = 0.0;
-        double secondMaxDistance = 0.0;
         var farthestVector = vectors.getFirst();
-        var secondFarthestVector = vectors.get(1);
         double distance = 0.0;
         for (RealVector vector : vectors) {
             distance = centroid.getDistance(vector);
-            if(distance > maxDistance) {
-                secondMaxDistance = maxDistance;
-                secondFarthestVector = farthestVector;
+            if (distance > maxDistance) {
                 maxDistance = distance;
                 farthestVector = vector;
-            } else if (distance > secondMaxDistance) {
-                secondMaxDistance = distance;
+            }
+        }
+        return farthestVector;
+    }
+
+    public static RealVector findSecondFarthestVector(List<RealVector> vectors, RealVector centroid, RealVector farthestVector) {
+
+        double maxDistance = 0.0;
+        var secondFarthestVector = vectors.getFirst();
+        double distance = 0.0;
+        for (RealVector vector : vectors) {
+            if (Arrays.equals(vector.toArray(), farthestVector.toArray())) continue;
+            distance = centroid.getDistance(vector) + vector.getDistance(farthestVector);
+            if (distance > maxDistance) {
+                maxDistance = distance;
                 secondFarthestVector = vector;
             }
         }
-        return List.of(farthestVector, secondFarthestVector);
+        return secondFarthestVector;
     }
 }

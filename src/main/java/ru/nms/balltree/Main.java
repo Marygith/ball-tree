@@ -15,29 +15,23 @@ import java.util.stream.Collectors;
 
 public class Main {
     public static void main(String[] args) {
-        String fileName = "C:\\Users\\maria\\Downloads\\embeddings_array.txt";  // Replace with the actual file path
-
+        String fileName = "C:\\Users\\maria\\Downloads\\embeddings_array.txt";
         List<List<Double>> twoDList = new ArrayList<>();
 
         try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
             String line;
             while ((line = br.readLine()) != null) {
-                String[] values = line.split("\\s+"); // Split the line by whitespace
+                String[] values = line.split("\\s+");
                 List<Double> row = new ArrayList<>();
                 for (String value : values) {
-                    row.add(Double.parseDouble(value));  // Convert the value to integer and add to the row
+                    row.add(Double.parseDouble(value));
                 }
-                twoDList.add(row);  // Add the row to the 2D List
+                twoDList.add(row);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        // Print the 2D List
-//        for (List<Double> row : twoDList.subList(0, 10)) {
-//
-//            System.out.println("row with length " + row.size() + ": " + row);
-//        }
         List<RealVector> vectors = twoDList.stream().map(doubleList -> new ArrayRealVector(doubleList.stream().mapToDouble(Double::doubleValue).toArray())).collect(Collectors.toList());
         BallTreeService ballTreeService = new BallTreeService();
         ballTreeService.constructBallTree(vectors);
@@ -53,15 +47,30 @@ public class Main {
             targets.add(vectors.get(ind));
         }
         var bruteForceService = new BruteForceService();
-        var res1 = bruteForceService.knn(vectors, 10, targets.getFirst());
-        var res2 = bruteForceService.knn2(vectors, 10, targets.getFirst());
+        var res1 = bruteForceService.knn(vectors, 5, targets.getFirst());
+        var res2 = bruteForceService.knn2(vectors, 5, targets.getFirst());
 
-        System.out.println("res1: " + res1);
-        System.out.println("res2: " + res2);
+        System.out.println(res1.equals(res2));
+        System.out.println(targets.getFirst().getDistance(vectors.getFirst()));
+        res1.forEach(vec -> {
+            System.out.println("Distance: " + vec.getDistance(targets.getFirst()));
+            System.out.println("vec: " + vec);
+        });
+
+        System.out.println("!!!");
+
+        res2.forEach(vec -> {
+            System.out.println("Distance: " + vec.getDistance(targets.getFirst()));
+            System.out.println("vec: " + vec);
+        });
+        System.out.println("!!!");
 
 
-
-
+        var res = ballTreeService.knn(targets.getFirst(), 5);
+        res.forEach(vec -> {
+            System.out.println("Distance: " + vec.getDistance(targets.getFirst()));
+            System.out.println("vec: " + vec);
+        });
     }
 
 }

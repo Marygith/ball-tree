@@ -10,7 +10,7 @@ import java.util.List;
 
 public class BruteForceService {
 
-    public List<RealVector> knn(List<RealVector> vectors, int k,  RealVector target) {
+    public List<RealVector> knn(List<RealVector> vectors, int k, RealVector target) {
         Comparator<RealVector> comparator = Comparator.comparingDouble(v -> v.getDistance(target));
         var queue = MinMaxPriorityQueue.orderedBy(comparator)
                 .maximumSize(k)
@@ -19,7 +19,7 @@ public class BruteForceService {
 
     }
 
-    public List<RealVector> knn2(List<RealVector> vecs, int k,  RealVector target) {
+    public List<RealVector> knn2(List<RealVector> vecs, int k, RealVector target) {
         Comparator<RealVector> comparator = Comparator.comparingDouble(v -> v.getDistance(target));
         var vectors = new ArrayList<>(vecs);
         List<RealVector> result = new ArrayList<>();
@@ -30,6 +30,5 @@ public class BruteForceService {
         }
 
         return result;
-
-
-    }}
+    }
+}

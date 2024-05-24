@@ -8,6 +8,7 @@ import java.util.List;
 public class BallTreeService {
 
     private BallTree ballTree;
+
     public void constructBallTree(List<RealVector> vectors) {
         var rootNode = new Node(vectors);
         this.ballTree = new BallTree(rootNode, 10);
