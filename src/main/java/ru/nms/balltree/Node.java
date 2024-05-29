@@ -17,7 +17,6 @@ public class Node {
     @Setter
     private Node rightChild;
 
-    // Constructor
     public Node(List<RealVector> vectors) {
         this.vectors = vectors;
         this.centroid = BallTreeUtils.calculateCentroid(vectors);

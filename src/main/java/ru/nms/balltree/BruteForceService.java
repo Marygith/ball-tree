@@ -4,7 +4,6 @@ import com.google.common.collect.MinMaxPriorityQueue;
 import org.apache.commons.math3.linear.RealVector;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
